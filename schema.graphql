@@ -1,0 +1,29 @@
+#
+# Original contract names
+#
+
+type Cup @entity {
+  # CDP ID
+  id: ID!
+
+  # CDP owner
+  lad: String!
+
+  # Creation timestamp
+  time: BigInt!
+}
+
+#
+# Alternative dev-friendly names
+#
+
+type Cdp @entity {
+  # CDP ID
+  id: ID!
+
+  # CDP owner
+  owner: String!
+
+  # Creation timestamp in milliseconds
+  created: BigInt!
+}

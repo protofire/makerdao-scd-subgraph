@@ -1,0 +1,19 @@
+{
+  "name": "makerdao-subgraph",
+  "version": "0.0.1",
+  "repository": "https://github.com/protofire/makerdao-subgraph.git",
+  "license": "LGPLv3",
+  "author": "Sebastián Galiano",
+  "scripts": {
+    "build": "graph build",
+    "codegen": "graph codegen",
+    "create-local": "graph create --node http://localhost:8020/ protofire/makerdao",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/makerdao",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 protofire/makerdao",
+    "remove-local": "graph remove --node http://localhost:8020/ protofire/makerdao"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.11.2",
+    "@graphprotocol/graph-ts": "0.11.0"
+  }
+}
