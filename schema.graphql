@@ -1,29 +1,62 @@
-#
-# Original contract names
-#
-
-type Cup @entity {
-  # CDP ID
-  id: ID!
-
-  # CDP owner
-  lad: String!
-
-  # Creation timestamp
-  time: BigInt!
-}
-
-#
-# Alternative dev-friendly names
-#
-
 type Cdp @entity {
   # CDP ID
   id: ID!
 
   # CDP owner
-  owner: String!
+  owner: Bytes!
 
-  # Creation timestamp in milliseconds
+  # Creation timestamp in seconds
   created: BigInt!
+
+  # Block number in which the CDP was created
+  createdAtBlock: BigInt!
+
+  # Transaction hash in which the CDP was created
+  createdAtTransaction: Bytes!
+
+  # True if the CDP has been shut
+  deleted: Boolean
+
+  # Block at most recent action
+  block: BigInt!
+
+  # Timestamp of most recent action
+  timestamp: BigInt!
+
+  # CDP operations
+  actions: [CdpAction!]! @derivedFrom(field: "cdp")
+}
+
+type CdpAction @entity {
+  # Action ID: <cdpId>-<blockNumber>-<actionName>
+  id: ID!
+
+  # CDP ID
+  cdp: Cdp!
+
+  # Action name
+  type: ActionType!
+
+  # Action value
+  value: Bytes
+
+  # Block number
+  block: BigInt!
+
+  # Transaction hash
+  transactionHash: Bytes!
+
+  # Timestamp
+  timestamp: BigInt!
+}
+
+enum ActionType {
+  OPEN
+  GIVE
+  LOCK
+  FREE
+  DRAW
+  WIPE
+  SHUT
+  BITE
 }

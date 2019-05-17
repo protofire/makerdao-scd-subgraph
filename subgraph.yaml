@@ -7,7 +7,7 @@ dataSources:
     network: mainnet
     #network: kovan
     source:
-      address: "0x448a5065aebb8e423f0896e6c5d525c040f59af3"
+      address: '0x448a5065aebb8e423f0896e6c5d525c040f59af3'
       #address: "0xa71937147b55Deb8a530C7229C442Fd3F31b7db2"
       abi: SaiTub
     mapping:
@@ -15,36 +15,33 @@ dataSources:
       apiVersion: 0.0.2
       language: wasm/assemblyscript
       entities:
-        - Cup
         - Cdp
+        - CdpAction
       abis:
         - name: SaiTub
           file: ./abis/SaiTub.json
       eventHandlers:
         - event: LogNewCup(address,bytes32)
           handler: handleNewCdp
-        - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # open()
-          topic0: "0xfcfff16f00000000000000000000000000000000000000000000000000000000"
-          handler: handleOpen
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # give(bytes32,address)
-          topic0: "0xbaa8529c00000000000000000000000000000000000000000000000000000000"
+          topic0: '0xbaa8529c00000000000000000000000000000000000000000000000000000000'
           handler: handleGive
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # lock(bytes32,uint256)
-          topic0: "0xb3b77a5100000000000000000000000000000000000000000000000000000000"
+          topic0: '0xb3b77a5100000000000000000000000000000000000000000000000000000000'
           handler: handleLock
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # free(bytes32,uint256)
-          topic0: "0xa5cd184e00000000000000000000000000000000000000000000000000000000"
+          topic0: '0xa5cd184e00000000000000000000000000000000000000000000000000000000'
           handler: handleFree
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # draw(bytes32,uint256)
-          topic0: "0x440f19ba00000000000000000000000000000000000000000000000000000000"
+          topic0: '0x440f19ba00000000000000000000000000000000000000000000000000000000'
           handler: handleDraw
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # wipe(bytes32,uint256)
-          topic0: "0x73b3810100000000000000000000000000000000000000000000000000000000"
+          topic0: '0x73b3810100000000000000000000000000000000000000000000000000000000'
           handler: handleWipe
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # shut(bytes32)
-          topic0: "0xb84d210600000000000000000000000000000000000000000000000000000000"
+          topic0: '0xb84d210600000000000000000000000000000000000000000000000000000000'
           handler: handleShut
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # bite(bytes32)
-          topic0: "0x40cc885400000000000000000000000000000000000000000000000000000000"
+          topic0: '0x40cc885400000000000000000000000000000000000000000000000000000000'
           handler: handleBite
       file: ./src/mapping.ts
