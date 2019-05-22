@@ -17,7 +17,7 @@ export function handleGive(event: LogNote): void {
   let cdpId = toBigInt(event.params.foo).toString()
 
   let action = createCdpAction('GIVE', event)
-  action.value = toAddress(event.params.bar)
+  action.value = toAddress(event.params.bar).toHex()
 
   addActionToCdp(action, cdpId)
 }
@@ -26,7 +26,7 @@ export function handleLock(event: LogNote): void {
   let cdpId = toBigInt(event.params.foo).toString()
 
   let action = createCdpAction('LOCK', event)
-  action.value = toBigDecimal(event.params.bar)
+  action.value = toBigDecimal(event.params.bar).toString()
 
   addActionToCdp(action, cdpId)
 }
@@ -35,7 +35,7 @@ export function handleFree(event: LogNote): void {
   let cdpId = toBigInt(event.params.foo).toString()
 
   let action = createCdpAction('FREE', event)
-  action.value = toBigDecimal(event.params.bar)
+  action.value = toBigDecimal(event.params.bar).toString()
 
   addActionToCdp(action, cdpId)
 }
@@ -44,7 +44,7 @@ export function handleDraw(event: LogNote): void {
   let cdpId = toBigInt(event.params.foo).toString()
 
   let action = createCdpAction('DRAW', event)
-  action.value = toBigDecimal(event.params.bar)
+  action.value = toBigDecimal(event.params.bar).toString()
 
   addActionToCdp(action, cdpId)
 }
@@ -53,7 +53,7 @@ export function handleWipe(event: LogNote): void {
   let cdpId = toBigInt(event.params.foo).toString()
 
   let action = createCdpAction('WIPE', event)
-  action.value = toBigDecimal(event.params.bar)
+  action.value = toBigDecimal(event.params.bar).toString()
 
   addActionToCdp(action, cdpId)
 }

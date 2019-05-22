@@ -38,7 +38,7 @@ type CdpAction @entity {
   type: ActionType!
 
   # Action value
-  value: Bytes
+  value: String
 
   # Block number
   block: BigInt!

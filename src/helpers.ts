@@ -10,7 +10,9 @@ export function toBigInt(value: Bytes): BigInt {
   return BigInt.fromI32(val)
 }
 
-export function toBigDecimal(value: Bytes): Bytes {
-  // TODO
-  return value
+export function toBigDecimal(value: Bytes, decimals: u32 = 18): BigDecimal {
+  let val = BigInt.fromUnsignedBytes(value.reverse() as Bytes)
+  let precision = Math.pow(parseFloat('10'), parseFloat(decimals.toString()))
+
+  return val.divDecimal(BigDecimal.fromString(precision.toString()))
 }
