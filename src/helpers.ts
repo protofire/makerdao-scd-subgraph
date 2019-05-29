@@ -1,18 +1,20 @@
 import { Address, BigDecimal, BigInt, Bytes } from '@graphprotocol/graph-ts'
 
+let PRECISION = BigDecimal.fromString('1000000000000000000') // 10^18
+export let ZERO = BigDecimal.fromString('0')
+
 export function toAddress(value: Bytes): Bytes {
   return Address.fromHexString(value.toHex())
 }
 
 export function toBigInt(value: Bytes): BigInt {
-  let val = parseInt(value.toHex()) as u32
+  let val = value.reverse() as Bytes // Convert to big-endian
 
-  return BigInt.fromI32(val)
+  return BigInt.fromUnsignedBytes(val)
 }
 
-export function toBigDecimal(value: Bytes, decimals: u32 = 18): BigDecimal {
-  let val = BigInt.fromUnsignedBytes(value.reverse() as Bytes)
-  let precision = Math.pow(parseFloat('10'), parseFloat(decimals.toString()))
+export function toBigDecimal(value: Bytes): BigDecimal {
+  let val = toBigInt(value)
 
-  return val.divDecimal(BigDecimal.fromString(precision.toString()))
+  return val.divDecimal(PRECISION)
 }

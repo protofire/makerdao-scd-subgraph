@@ -38,10 +38,10 @@ dataSources:
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # wipe(bytes32,uint256)
           topic0: '0x73b3810100000000000000000000000000000000000000000000000000000000'
           handler: handleWipe
-        - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # shut(bytes32)
-          topic0: '0xb84d210600000000000000000000000000000000000000000000000000000000'
-          handler: handleShut
         - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # bite(bytes32)
           topic0: '0x40cc885400000000000000000000000000000000000000000000000000000000'
           handler: handleBite
+        - event: LogNote(bytes4,address,bytes32,bytes32,uint256,bytes) # shut(bytes32)
+          topic0: '0xb84d210600000000000000000000000000000000000000000000000000000000'
+          handler: handleShut
       file: ./src/mapping.ts
