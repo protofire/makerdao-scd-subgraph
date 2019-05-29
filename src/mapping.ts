@@ -18,7 +18,7 @@ export function handleNewCdp(event: LogNewCup): void {
   cdp.createdAtTransaction = event.transaction.hash
 
   // Create synthetic OPEN action since this event is emitted before LogNewCup event
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'OPEN'
   action.cdp = cdp.id
   action.sender = cdp.owner
@@ -43,7 +43,7 @@ export function handleGive(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'GIVE'
   action.transferTo = value
   action.cdp = cdp ? cdp.id : null
@@ -74,7 +74,7 @@ export function handleLock(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'LOCK'
   action.amount = value
   action.cdp = cdp ? cdp.id : null
@@ -105,7 +105,7 @@ export function handleFree(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'FREE'
   action.amount = value
   action.cdp = cdp ? cdp.id : null
@@ -136,7 +136,7 @@ export function handleDraw(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'DRAW'
   action.amount = value
   action.cdp = cdp ? cdp.id : null
@@ -169,7 +169,7 @@ export function handleWipe(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'WIPE'
   action.amount = value
   action.cdp = cdp ? cdp.id : null
@@ -201,7 +201,7 @@ export function handleBite(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'BITE'
   action.cdp = cdp ? cdp.id : null
   action.sender = sender
@@ -233,7 +233,7 @@ export function handleShut(event: LogNote): void {
 
   let cdp = Cdp.load(cdpId)
 
-  let action = new CdpAction(event.transaction.hash.toHex())
+  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
   action.type = 'SHUT'
   action.cdp = cdp ? cdp.id : null
   action.sender = sender
