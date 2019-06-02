@@ -3,14 +3,23 @@ type Cdp @entity {
   " CDP ID "
   id: ID!
 
-  " CDP owner "
+  " CDP owner (lad) "
   owner: Bytes!
 
-  " Collateral amount [PETH] "
+  " Collateral amount [PETH] (ink) "
   collateral: BigDecimal!
 
-  " Outstanding debt [DAI] "
+  # TODO: Collateral less fee (ire)
+  # collateralLessFee: BigDecimal!
+
+  # TODO: Collateral [USD] (tab)
+  # collateralUsd: BigDecimal!
+
+  " Outstanding debt [DAI] (art) "
   debt: BigDecimal!
+
+  # TODO: Current collateralization ratio
+  # ratio: BigDecimal!
 
   " Creation timestamp as seconds "
   created: BigInt!
@@ -27,10 +36,7 @@ type Cdp @entity {
   " Most recent action "
   latestAction: CdpAction!
 
-  " Timestamp of most recent action as seconds "
-  timestamp: BigInt!
-
-  " CDP operations "
+  " CDP operations (acts) "
   actions: [CdpAction!]! @derivedFrom(field: "cdp")
 }
 
@@ -39,16 +45,16 @@ type CdpAction @entity {
   " Action ID (<transaction_hash>-<action_type>) "
   id: ID!
 
-  " CDP ID "
+  " CDP ID (foo) "
   cdp: Cdp!
 
-  " Action name "
+  " Action name (sig) "
   type: ActionType!
 
-  " Action value "
+  " Action value (bar) "
   value: String
 
-  " Sender address "
+  " Sender address (guy) "
   sender: Bytes!
 
   " Block number "
