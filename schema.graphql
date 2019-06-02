@@ -24,8 +24,8 @@ type Cdp @entity {
   " Flag indicating if the CDP has been shut "
   deleted: Boolean
 
-  " Block at most recent action "
-  block: BigInt!
+  " Most recent action "
+  latestAction: CdpAction!
 
   " Timestamp of most recent action as seconds "
   timestamp: BigInt!
@@ -45,11 +45,8 @@ type CdpAction @entity {
   " Action name "
   type: ActionType!
 
-  " Action value. Only valid for actions of type LOCK, FREE, DRAW and WIPE. "
-  amount: BigDecimal
-
-  " New owner address. Only valid for GIVE actions. "
-  transferTo: Bytes
+  " Action value "
+  value: String
 
   " Sender address "
   sender: Bytes!
