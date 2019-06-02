@@ -36,7 +36,7 @@ type Cdp @entity {
 
 " Operation over a Collateralized Debt Position (CDP) "
 type CdpAction @entity {
-  " Action ID (equal to transaction hash) "
+  " Action ID (<transaction_hash>-<action_type>) "
   id: ID!
 
   " CDP ID "

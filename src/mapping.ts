@@ -18,10 +18,11 @@ export function handleNewCdp(event: LogNewCup): void {
   cdp.createdAtTransaction = event.transaction.hash
 
   // Create synthetic OPEN action since this event is emitted before LogNewCup event
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'OPEN'
+  let actionType = 'OPEN'
+  let action = new CdpAction(event.transaction.hash.toHex() + '-' + actionType)
   action.cdp = cdp.id
   action.sender = cdp.owner
+  action.type = actionType
 
   action.block = event.block.number
   action.timestamp = event.block.timestamp
@@ -37,226 +38,273 @@ export function handleNewCdp(event: LogNewCup): void {
 }
 
 export function handleGive(event: LogNote): void {
+  let actionType = 'GIVE'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
-  let value = toAddress(event.params.bar)
   let sender = toAddress(event.params.guy)
+  let value = toAddress(event.params.bar)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'GIVE'
-  action.transferTo = value
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
+    action.transferTo = value
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Transfer CDP
-    cdp.owner = value
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+    if (cdp != null) {
+      // Transfer CDP
+      cdp.owner = value
 
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
 
 export function handleLock(event: LogNote): void {
+  let actionType = 'LOCK'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
-  let value = toBigDecimal(event.params.bar)
   let sender = toAddress(event.params.guy)
+  let value = toBigDecimal(event.params.bar)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'LOCK'
-  action.amount = value
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
+    action.amount = value
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Increase collateral
-    cdp.collateral = cdp.collateral == ZERO ? value : cdp.collateral.plus(value)
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+    if (cdp != null) {
+      // Increase collateral
+      cdp.collateral = cdp.collateral.plus(value)
 
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
 
 export function handleFree(event: LogNote): void {
+  let actionType = 'FREE'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
-  let value = toBigDecimal(event.params.bar)
   let sender = toAddress(event.params.guy)
+  let value = toBigDecimal(event.params.bar)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'FREE'
-  action.amount = value
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
+    action.amount = value
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Decrease collateral
-    cdp.collateral = cdp.collateral == ZERO ? ZERO : cdp.collateral.minus(value)
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+    if (cdp != null) {
+      // Decrease collateral
+      cdp.collateral = cdp.collateral.minus(value)
 
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
 
 export function handleDraw(event: LogNote): void {
+  let actionType = 'DRAW'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
-  let value = toBigDecimal(event.params.bar)
   let sender = toAddress(event.params.guy)
+  let value = toBigDecimal(event.params.bar)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'DRAW'
-  action.amount = value
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
+    action.amount = value
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Increase outstanding debt
-    cdp.debt = cdp.debt == ZERO ? value : cdp.debt.plus(value)
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // TODO: Update collateral less fee
+    if (cdp != null) {
+      // Increase outstanding debt
+      cdp.debt = cdp.debt.plus(value)
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+      // TODO: Update collateral less fee
 
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
 
 export function handleWipe(event: LogNote): void {
+  let actionType = 'WIPE'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
-  let value = toBigDecimal(event.params.bar)
   let sender = toAddress(event.params.guy)
+  let value = toBigDecimal(event.params.bar)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'WIPE'
-  action.amount = value
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
+    action.amount = value
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Decrease outstanding debt [DAI]
-    cdp.debt = cdp.debt == ZERO ? ZERO : cdp.debt.minus(value)
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // TODO: Update collateral less fee
+    if (cdp != null) {
+      // Decrease outstanding debt
+      cdp.debt = cdp.debt.minus(value)
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+      // TODO: Update collateral less fee
 
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
 
 export function handleBite(event: LogNote): void {
+  let actionType = 'BITE'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
   let sender = toAddress(event.params.guy)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'BITE'
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Reset outstanding debt
-    cdp.debt = ZERO
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // TODO: Calculate remaining collateral
+    if (cdp != null) {
+      // Reset outstanding debt
+      cdp.debt = ZERO
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+      // TODO: Calculate remaining collateral
 
-    // Persist changes in the CDP
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
 
 export function handleShut(event: LogNote): void {
+  let actionType = 'SHUT'
+  let actionId = event.transaction.hash.toHex() + '-' + actionType
   let cdpId = toBigInt(event.params.foo).toString()
   let sender = toAddress(event.params.guy)
 
-  let cdp = Cdp.load(cdpId)
+  let action = CdpAction.load(actionId)
 
-  let action = new CdpAction(event.block.timestamp.toString() + '-' + event.transaction.hash.toHex())
-  action.type = 'SHUT'
-  action.cdp = cdp ? cdp.id : null
-  action.sender = sender
+  if (action == null) {
+    action = new CdpAction(actionId)
+    action.cdp = cdpId
+    action.sender = sender
+    action.type = actionType
 
-  action.block = event.block.number
-  action.timestamp = event.block.timestamp
-  action.transactionHash = event.transaction.hash
+    action.block = event.block.number
+    action.timestamp = event.block.timestamp
+    action.transactionHash = event.transaction.hash
 
-  action.save()
+    action.save()
 
-  if (cdp != null) {
-    // Mark CDP as deleted
-    cdp.deleted = true
+    // Update CDP related to this action
+    let cdp = Cdp.load(cdpId)
 
-    // Reset collateral and debt
-    cdp.debt = ZERO
-    cdp.collateral = ZERO
+    if (cdp != null) {
+      // Mark CDP as deleted
+      cdp.deleted = true
 
-    // Save action as the most recent action
-    cdp.block = action.block
-    cdp.timestamp = action.timestamp
+      // Reset collateral and debt
+      cdp.debt = ZERO
+      cdp.collateral = ZERO
 
-    // Persist changes in the CDP
-    cdp.save()
+      // Save action as the most recent action
+      cdp.block = action.block
+      cdp.timestamp = action.timestamp
+
+      cdp.save()
+    }
   }
 }
