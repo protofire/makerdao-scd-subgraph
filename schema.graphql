@@ -30,8 +30,17 @@ type Cdp @entity {
   " Transaction hash in which the CDP was created "
   createdAtTransaction: Bytes!
 
-  " Flag indicating if the CDP has been shut "
-  deleted: Boolean
+  " Timestamp as seconds of most recent action "
+  modified: BigInt!
+
+  " Block number at most recent action "
+  modifiedAtBlock: BigInt!
+
+  " Transaction hash at most recent action "
+  modifiedAtTransaction: Bytes!
+
+  " Deletion timestamp as seconds (if deleted) "
+  deleted: BigInt
 
   " Most recent action "
   latestAction: CdpAction!

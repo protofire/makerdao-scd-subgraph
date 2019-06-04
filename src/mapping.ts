@@ -12,8 +12,8 @@ export function handleNewCdp(event: LogNewCup): void {
   cdp.debt = ZERO
   cdp.collateral = ZERO
 
-  cdp.created = event.block.timestamp
   cdp.owner = sender
+  cdp.created = event.block.timestamp
   cdp.createdAtBlock = event.block.number
   cdp.createdAtTransaction = event.transaction.hash
 
@@ -32,6 +32,9 @@ export function handleNewCdp(event: LogNewCup): void {
 
   // Save action as the most recent action
   cdp.latestAction = action.id
+  cdp.modified = action.timestamp
+  cdp.modifiedAtBlock = action.block
+  cdp.modifiedAtTransaction = action.transactionHash
 
   cdp.save()
 }
@@ -62,11 +65,14 @@ export function handleGive(event: LogNote): void {
     let cdp = Cdp.load(cdpId)
 
     if (cdp != null) {
-      // Transfer CDP
+      // Transfer CDP ownership
       cdp.owner = value
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
@@ -104,6 +110,9 @@ export function handleLock(event: LogNote): void {
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
@@ -141,6 +150,9 @@ export function handleFree(event: LogNote): void {
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
@@ -180,6 +192,9 @@ export function handleDraw(event: LogNote): void {
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
@@ -219,6 +234,9 @@ export function handleWipe(event: LogNote): void {
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
@@ -256,6 +274,9 @@ export function handleBite(event: LogNote): void {
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
@@ -287,7 +308,7 @@ export function handleShut(event: LogNote): void {
 
     if (cdp != null) {
       // Mark CDP as deleted
-      cdp.deleted = true
+      cdp.deleted = event.block.timestamp
 
       // Reset collateral and debt
       cdp.debt = ZERO
@@ -295,6 +316,9 @@ export function handleShut(event: LogNote): void {
 
       // Save action as the most recent action
       cdp.latestAction = action.id
+      cdp.modified = action.timestamp
+      cdp.modifiedAtBlock = action.block
+      cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
     }
