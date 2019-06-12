@@ -3,6 +3,7 @@ import { Cdp, CdpAction } from '../generated/schema'
 
 import { toAddress, toBigDecimal, toBigInt, ZERO } from './helpers'
 
+// Create a CDP
 export function handleNewCdp(event: LogNewCup): void {
   let cdpId = toBigInt(event.params.cup).toString()
   let sender = toAddress(event.params.lad)
@@ -39,6 +40,7 @@ export function handleNewCdp(event: LogNewCup): void {
   cdp.save()
 }
 
+// Transfer CDP ownership (changes lad)
 export function handleGive(event: LogNote): void {
   let actionType = 'GIVE'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
@@ -79,6 +81,7 @@ export function handleGive(event: LogNote): void {
   }
 }
 
+// Add collateral to a CDP (increases ink)
 export function handleLock(event: LogNote): void {
   let actionType = 'LOCK'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
@@ -119,6 +122,7 @@ export function handleLock(event: LogNote): void {
   }
 }
 
+// Remove collateral from a CDP (decreases ink)
 export function handleFree(event: LogNote): void {
   let actionType = 'FREE'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
@@ -159,6 +163,7 @@ export function handleFree(event: LogNote): void {
   }
 }
 
+// Create DAI against a CDP (increases art, rum)
 export function handleDraw(event: LogNote): void {
   let actionType = 'DRAW'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
@@ -201,6 +206,7 @@ export function handleDraw(event: LogNote): void {
   }
 }
 
+// Use DAI to cancel CDP debt (decreases art, rum)
 export function handleWipe(event: LogNote): void {
   let actionType = 'WIPE'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
@@ -243,6 +249,7 @@ export function handleWipe(event: LogNote): void {
   }
 }
 
+// Liquidate a CDP - Wipe all debt (zeros art, decreases ink)
 export function handleBite(event: LogNote): void {
   let actionType = 'BITE'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
@@ -283,6 +290,7 @@ export function handleBite(event: LogNote): void {
   }
 }
 
+// Close a CDP - Wipe all debt, free all collateral and delete the CDP
 export function handleShut(event: LogNote): void {
   let actionType = 'SHUT'
   let actionId = event.transaction.hash.toHex() + '-' + actionType
