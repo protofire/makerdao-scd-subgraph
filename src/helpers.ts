@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, Bytes } from '@graphprotocol/graph-ts'
 
 let PRECISION = BigDecimal.fromString('1000000000000000000') // 10^18
 export let ZERO = BigDecimal.fromString('0')
@@ -7,14 +7,14 @@ export function toAddress(value: Bytes): Address {
   return Address.fromHexString(value.toHex()).subarray(-20) as Address
 }
 
-export function toBigInt(value: Bytes): BigInt {
-  let val = value.reverse() as Bytes // Convert to big-endian
+export function toBigInt(value: Bytes, bigEndian: boolean = true): BigInt {
+  let val = bigEndian ? (value.reverse() as Bytes) : value
 
   return BigInt.fromUnsignedBytes(val)
 }
 
-export function toBigDecimal(value: Bytes): BigDecimal {
-  let val = toBigInt(value)
+export function toBigDecimal(value: Bytes, bigEndian: boolean = true): BigDecimal {
+  let val = toBigInt(value, bigEndian)
 
   return val.divDecimal(PRECISION)
 }
