@@ -1,6 +1,7 @@
-import { LogNewCup, LogNote } from '../generated/SaiTub/SaiTub'
+import { LogNewCup, LogNote } from '../generated/sai/tub'
 import { Cdp, CdpAction } from '../generated/schema'
 
+import { pep, pip } from './contracts'
 import { toAddress, toBigDecimal, toBigInt, ZERO } from './helpers'
 
 // Create a CDP
@@ -29,6 +30,9 @@ export function handleNewCdp(event: LogNewCup): void {
   action.timestamp = event.block.timestamp
   action.transactionHash = event.transaction.hash
 
+  action.ethPrice = toBigDecimal(pip.read())
+  action.mkrPrice = toBigDecimal(pep.read())
+
   action.save()
 
   // Save action as the most recent action
@@ -36,6 +40,9 @@ export function handleNewCdp(event: LogNewCup): void {
   cdp.modified = action.timestamp
   cdp.modifiedAtBlock = action.block
   cdp.modifiedAtTransaction = action.transactionHash
+
+  cdp.ethPrice = action.ethPrice
+  cdp.mkrPrice = action.mkrPrice
 
   cdp.save()
 }
@@ -61,6 +68,9 @@ export function handleGive(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -69,6 +79,10 @@ export function handleGive(event: LogNote): void {
     if (cdp != null) {
       // Transfer CDP ownership
       cdp.owner = value
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -102,6 +116,9 @@ export function handleLock(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -110,6 +127,10 @@ export function handleLock(event: LogNote): void {
     if (cdp != null) {
       // Increase collateral
       cdp.collateral = cdp.collateral.plus(value)
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -143,6 +164,9 @@ export function handleFree(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -151,6 +175,10 @@ export function handleFree(event: LogNote): void {
     if (cdp != null) {
       // Decrease collateral
       cdp.collateral = cdp.collateral.minus(value)
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -184,6 +212,9 @@ export function handleDraw(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -194,6 +225,10 @@ export function handleDraw(event: LogNote): void {
       cdp.debt = cdp.debt.plus(value)
 
       // TODO: Update collateral less fee
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -227,6 +262,9 @@ export function handleWipe(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -237,6 +275,10 @@ export function handleWipe(event: LogNote): void {
       cdp.debt = cdp.debt.minus(value)
 
       // TODO: Update collateral less fee
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -268,6 +310,9 @@ export function handleBite(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -278,6 +323,10 @@ export function handleBite(event: LogNote): void {
       cdp.debt = ZERO
 
       // TODO: Calculate remaining collateral
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -309,6 +358,9 @@ export function handleShut(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
+    action.ethPrice = toBigDecimal(pip.read())
+    action.mkrPrice = toBigDecimal(pep.read())
+
     action.save()
 
     // Update CDP related to this action
@@ -321,6 +373,10 @@ export function handleShut(event: LogNote): void {
       // Reset collateral and debt
       cdp.debt = ZERO
       cdp.collateral = ZERO
+
+      // Save current ETH/MKR prices
+      cdp.ethPrice = action.ethPrice
+      cdp.mkrPrice = action.mkrPrice
 
       // Save action as the most recent action
       cdp.latestAction = action.id

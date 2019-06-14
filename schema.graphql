@@ -1,4 +1,4 @@
-" Collateralized Debt Position "
+" Collateralized Debt Position (CDP)"
 type Cdp @entity {
   " CDP ID "
   id: ID!
@@ -18,8 +18,17 @@ type Cdp @entity {
   " Outstanding debt [DAI] (art) "
   debt: BigDecimal!
 
-  # TODO: Current collateralization ratio
+  # TODO: Collateralization ratio
   # ratio: BigDecimal!
+
+  # TODO: Liquidation price [USD]
+  # liquidationPrice: BigDecimal!
+
+  " ETH price at most recent action [USD] (pip) "
+  ethPrice: BigDecimal!
+
+  " MKR price at most recent action [USD] (pep) "
+  mkrPrice: BigDecimal!
 
   " Creation timestamp as seconds "
   created: BigInt!
@@ -30,50 +39,56 @@ type Cdp @entity {
   " Transaction hash in which the CDP was created "
   createdAtTransaction: Bytes!
 
-  " Timestamp as seconds of most recent action "
-  modified: BigInt!
-
-  " Block number at most recent action "
-  modifiedAtBlock: BigInt!
-
-  " Transaction hash at most recent action "
-  modifiedAtTransaction: Bytes!
-
   " Deletion timestamp as seconds (if deleted) "
   deleted: BigInt
 
   " Most recent action "
   latestAction: CdpAction!
 
+  " Timestamp as seconds of most recent action (time)"
+  modified: BigInt!
+
+  " Block number at most recent action (block)"
+  modifiedAtBlock: BigInt!
+
+  " Transaction hash at most recent action "
+  modifiedAtTransaction: Bytes!
+
   " CDP operations (acts) "
   actions: [CdpAction!]! @derivedFrom(field: "cdp")
 }
 
-" Operation over a Collateralized Debt Position (CDP) "
+" Atomic operation over a Collateralized Debt Position (CDP Action) "
 type CdpAction @entity {
   " Action ID (<transaction_hash>-<action_type>) "
   id: ID!
 
-  " CDP ID (foo) "
+  " CDP ID (id) "
   cdp: Cdp!
 
-  " Action name (sig) "
+  " Action name (act) "
   type: ActionType!
 
-  " Action value (bar) "
+  " Action value (arg) "
   value: String
 
   " Sender address (guy) "
   sender: Bytes!
 
-  " Block number "
+  " Block number (block) "
   block: BigInt!
 
-  " Transaction hash "
+  " Transaction hash (tx) "
   transactionHash: Bytes!
 
-  " Action timestamp as seconds "
+  " Action timestamp as seconds (time) "
   timestamp: BigInt!
+
+  # ETH price at block [USD] (pip)
+  ethPrice: BigDecimal!
+
+  # MKR price at block [USD] (pep)
+  mkrPrice: BigDecimal!
 }
 
 enum ActionType {

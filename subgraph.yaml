@@ -3,13 +3,13 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: SaiTub
+    name: sai
     network: mainnet
     #network: kovan
     source:
       address: '0x448a5065aebb8e423f0896e6c5d525c040f59af3'
       #address: '0xa71937147b55Deb8a530C7229C442Fd3F31b7db2'
-      abi: SaiTub
+      abi: Tub
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -18,8 +18,12 @@ dataSources:
         - Cdp
         - CdpAction
       abis:
-        - name: SaiTub
-          file: ./abis/SaiTub.json
+        - name: Tub
+          file: ./abis/sai/tub.json
+        - name: Pip
+          file: ./abis/sai/pip.json
+        - name: Pep
+          file: ./abis/sai/pep.json
       eventHandlers:
         - event: LogNewCup(indexed address,bytes32)
           handler: handleNewCdp
