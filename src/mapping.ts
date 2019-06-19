@@ -13,6 +13,8 @@ export function handleNewCdp(event: LogNewCup): void {
 
   cdp.debt = ZERO
   cdp.collateral = ZERO
+  cdp.collateralUsd = ZERO
+  cdp.ratio = ZERO
 
   cdp.owner = sender
   cdp.created = event.block.timestamp
@@ -84,6 +86,12 @@ export function handleGive(event: LogNote): void {
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
 
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
+
       // Save action as the most recent action
       cdp.latestAction = action.id
       cdp.modified = action.timestamp
@@ -132,6 +140,12 @@ export function handleLock(event: LogNote): void {
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
 
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
+
       // Save action as the most recent action
       cdp.latestAction = action.id
       cdp.modified = action.timestamp
@@ -179,6 +193,12 @@ export function handleFree(event: LogNote): void {
       // Save current ETH/MKR prices
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
+
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -230,6 +250,12 @@ export function handleDraw(event: LogNote): void {
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
 
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
+
       // Save action as the most recent action
       cdp.latestAction = action.id
       cdp.modified = action.timestamp
@@ -280,6 +306,12 @@ export function handleWipe(event: LogNote): void {
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
 
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
+
       // Save action as the most recent action
       cdp.latestAction = action.id
       cdp.modified = action.timestamp
@@ -327,6 +359,12 @@ export function handleBite(event: LogNote): void {
       // Save current ETH/MKR prices
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
+
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
 
       // Save action as the most recent action
       cdp.latestAction = action.id
@@ -377,6 +415,12 @@ export function handleShut(event: LogNote): void {
       // Save current ETH/MKR prices
       cdp.ethPrice = action.ethPrice
       cdp.mkrPrice = action.mkrPrice
+
+      // Calculate collateralization ratio
+      if (action.ethPrice) {
+        cdp.collateralUsd = cdp.collateral.times(action.ethPrice)
+        cdp.ratio = cdp.debt.equals(ZERO) ? ZERO : cdp.collateralUsd.div(cdp.debt)
+      }
 
       // Save action as the most recent action
       cdp.latestAction = action.id

@@ -1,4 +1,4 @@
-" Collateralized Debt Position (CDP)"
+" Collateralized Debt Position (CDP) "
 type Cdp @entity {
   " CDP ID "
   id: ID!
@@ -9,17 +9,17 @@ type Cdp @entity {
   " Collateral amount [PETH] (ink) "
   collateral: BigDecimal!
 
+  " Collateral value [USD] (tab) "
+  collateralUsd: BigDecimal!
+
   # TODO: Collateral less fee (ire)
   # collateralLessFee: BigDecimal!
-
-  # TODO: Collateral [USD] (tab)
-  # collateralUsd: BigDecimal!
 
   " Outstanding debt [DAI] (art) "
   debt: BigDecimal!
 
-  # TODO: Collateralization ratio
-  # ratio: BigDecimal!
+  " Collateralization ratio "
+  ratio: BigDecimal!
 
   # TODO: Liquidation price [USD]
   # liquidationPrice: BigDecimal!
