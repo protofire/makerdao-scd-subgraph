@@ -1,3 +1,5 @@
+import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
+
 import { LogNewCup, LogNote } from '../generated/sai/tub'
 import { Cdp, CdpAction } from '../generated/schema'
 
@@ -32,8 +34,8 @@ export function handleNewCdp(event: LogNewCup): void {
   action.timestamp = event.block.timestamp
   action.transactionHash = event.transaction.hash
 
-  action.ethPrice = toBigDecimal(pip.read())
-  action.mkrPrice = toBigDecimal(pep.read())
+  action.ethPrice = getEthPrice(event.block.number)
+  action.mkrPrice = getMkrPrice(event.block.number)
 
   action.save()
 
@@ -70,8 +72,8 @@ export function handleGive(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -124,8 +126,8 @@ export function handleLock(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -178,8 +180,8 @@ export function handleFree(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -232,8 +234,8 @@ export function handleDraw(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -288,8 +290,8 @@ export function handleWipe(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -342,8 +344,8 @@ export function handleBite(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -396,8 +398,8 @@ export function handleShut(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = toBigDecimal(pip.read())
-    action.mkrPrice = toBigDecimal(pep.read())
+    action.ethPrice = getEthPrice(event.block.number)
+    action.mkrPrice = getMkrPrice(event.block.number)
 
     action.save()
 
@@ -430,5 +432,29 @@ export function handleShut(event: LogNote): void {
 
       cdp.save()
     }
+  }
+}
+
+function getEthPrice(blockNumber: BigInt): BigDecimal {
+  let result = pip.peek()
+
+  if (result.value1) {
+    return toBigDecimal(result.value0)
+  } else {
+    log.warning('There is no price for ETH at block {}', [blockNumber.toString()])
+
+    return null
+  }
+}
+
+function getMkrPrice(blockNumber: BigInt): BigDecimal {
+  let result = pep.peek()
+
+  if (result.value1) {
+    return toBigDecimal(result.value0)
+  } else {
+    log.warning('There is no price for ETH at block {}', [blockNumber.toString()])
+
+    return null
   }
 }
