@@ -58,6 +58,17 @@ type Cdp @entity {
   actions: [CdpAction!]! @derivedFrom(field: "cdp")
 }
 
+enum ActionType {
+  OPEN
+  GIVE
+  LOCK
+  FREE
+  DRAW
+  WIPE
+  SHUT
+  BITE
+}
+
 " Atomic operation over a Collateralized Debt Position (CDP Action) "
 type CdpAction @entity {
   " Action ID (<transaction_hash>-<action_type>) "
@@ -91,13 +102,28 @@ type CdpAction @entity {
   mkrPrice: BigDecimal!
 }
 
-enum ActionType {
-  OPEN
-  GIVE
-  LOCK
-  FREE
-  DRAW
-  WIPE
-  SHUT
-  BITE
+type EthPrice @entity {
+  id: ID!
+
+  " Block number "
+  block: BigInt!
+
+  " Timestamp as seconds "
+  timestamp: BigInt!
+
+  " Price "
+  value: BigDecimal!
+}
+
+type MkrPrice @entity {
+  id: ID!
+
+  " Block number "
+  block: BigInt!
+
+  " Timestamp as seconds "
+  timestamp: BigInt!
+
+  " Price "
+  value: BigDecimal!
 }

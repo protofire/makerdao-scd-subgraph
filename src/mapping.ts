@@ -1,7 +1,7 @@
-import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, EthereumEvent, log } from '@graphprotocol/graph-ts'
 
 import { LogNewCup, LogNote } from '../generated/sai/tub'
-import { Cdp, CdpAction } from '../generated/schema'
+import { Cdp, CdpAction, EthPrice, MkrPrice } from '../generated/schema'
 
 import { pep, pip } from './contracts'
 import { toAddress, toBigDecimal, toBigInt, ZERO } from './helpers'
@@ -34,8 +34,8 @@ export function handleNewCdp(event: LogNewCup): void {
   action.timestamp = event.block.timestamp
   action.transactionHash = event.transaction.hash
 
-  action.ethPrice = getEthPrice(event.block.number)
-  action.mkrPrice = getMkrPrice(event.block.number)
+  action.ethPrice = getEthPrice(event)
+  action.mkrPrice = getMkrPrice(event)
 
   action.save()
 
@@ -72,8 +72,8 @@ export function handleGive(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -126,8 +126,8 @@ export function handleLock(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -180,8 +180,8 @@ export function handleFree(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -234,8 +234,8 @@ export function handleDraw(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -290,8 +290,8 @@ export function handleWipe(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -344,8 +344,8 @@ export function handleBite(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -398,8 +398,8 @@ export function handleShut(event: LogNote): void {
     action.timestamp = event.block.timestamp
     action.transactionHash = event.transaction.hash
 
-    action.ethPrice = getEthPrice(event.block.number)
-    action.mkrPrice = getMkrPrice(event.block.number)
+    action.ethPrice = getEthPrice(event)
+    action.mkrPrice = getMkrPrice(event)
 
     action.save()
 
@@ -435,26 +435,50 @@ export function handleShut(event: LogNote): void {
   }
 }
 
-function getEthPrice(blockNumber: BigInt): BigDecimal {
-  let result = pip.peek()
+function getEthPrice(event: EthereumEvent): BigDecimal {
+  let blockNumber = event.block.number
+  let price = EthPrice.load(blockNumber.toString())
 
-  if (result.value1) {
-    return toBigDecimal(result.value0)
-  } else {
-    log.warning('There is no price for ETH at block {}', [blockNumber.toString()])
+  if (!price) {
+    let result = pip.peek()
 
-    return null
+    if (!result.value1) {
+      log.warning('There is no price for ETH at block {}', [blockNumber.toString()])
+
+      return null
+    }
+
+    price = new EthPrice(blockNumber.toString())
+    price.block = blockNumber
+    price.timestamp = event.block.timestamp
+    price.value = toBigDecimal(result.value0)
+
+    price.save()
   }
+
+  return price.value
 }
 
-function getMkrPrice(blockNumber: BigInt): BigDecimal {
-  let result = pep.peek()
+function getMkrPrice(event: EthereumEvent): BigDecimal {
+  let blockNumber = event.block.number
+  let price = MkrPrice.load(blockNumber.toString())
 
-  if (result.value1) {
-    return toBigDecimal(result.value0)
-  } else {
-    log.warning('There is no price for ETH at block {}', [blockNumber.toString()])
+  if (!price) {
+    let result = pep.peek()
 
-    return null
+    if (!result.value1) {
+      log.warning('There is no price for MKR at block {}', [blockNumber.toString()])
+
+      return null
+    }
+
+    price = new MkrPrice(blockNumber.toString())
+    price.block = blockNumber
+    price.timestamp = event.block.timestamp
+    price.value = toBigDecimal(result.value0)
+
+    price.save()
   }
+
+  return price.value
 }
