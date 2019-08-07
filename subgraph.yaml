@@ -17,6 +17,7 @@ dataSources:
       entities:
         - Cdp
         - CdpAction
+        - CdpEngine
       abis:
         - name: Tub
           file: ./abis/sai/tub.json

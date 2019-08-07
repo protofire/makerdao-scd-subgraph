@@ -127,3 +127,14 @@ type MkrPrice @entity {
   " Price "
   value: BigDecimal!
 }
+
+type CdpEngine @entity {
+  id: ID!
+  cdpCount: Int!
+  openCdpCount: Int!
+  totalCollateral: BigDecimal!
+  totalDebt: BigDecimal!
+  lastBlock: BigInt!
+  lastModifiedDate:  BigInt!
+  cdpOwners: [Bytes!]!
+}

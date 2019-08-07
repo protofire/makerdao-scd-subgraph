@@ -1,5 +1,7 @@
 import { Address, BigDecimal, BigInt, Bytes } from '@graphprotocol/graph-ts'
 
+export const CDP_ENGINE_ID = '0x0'
+
 let PRECISION = BigDecimal.fromString('1000000000000000000') // 10^18
 export let ZERO = BigDecimal.fromString('0')
 

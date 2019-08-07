@@ -1,10 +1,10 @@
-import { BigDecimal, EthereumEvent, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, Bytes, EthereumEvent, log,  } from '@graphprotocol/graph-ts'
 
 import { LogNewCup, LogNote } from '../generated/sai/tub'
-import { Cdp, CdpAction, EthPrice, MkrPrice } from '../generated/schema'
+import { Cdp, CdpAction, EthPrice, MkrPrice, CdpEngine } from '../generated/schema'
 
 import { pep, pip } from './contracts'
-import { toAddress, toBigDecimal, toBigInt, ZERO } from './helpers'
+import { toAddress, toBigDecimal, toBigInt, ZERO, CDP_ENGINE_ID } from './helpers'
 
 // Create a CDP
 export function handleNewCdp(event: LogNewCup): void {
@@ -49,6 +49,18 @@ export function handleNewCdp(event: LogNewCup): void {
   cdp.mkrPrice = action.mkrPrice
 
   cdp.save()
+
+  //update cdpEngine entity
+  let cdpEngine = getCdpEngineEntity()
+  cdpEngine.cdpCount++
+  cdpEngine.openCdpCount++
+
+  cdpEngine.cdpOwners = addOwner(cdp.owner, cdpEngine.cdpOwners)
+
+  cdpEngine.lastBlock = action.block
+  cdpEngine.lastModifiedDate = action.timestamp
+
+  cdpEngine.save()
 }
 
 // Transfer CDP ownership (changes lad)
@@ -101,6 +113,12 @@ export function handleGive(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+      cdpEngine.save()
     }
   }
 }
@@ -155,6 +173,13 @@ export function handleLock(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+      cdpEngine.totalCollateral = cdpEngine.totalCollateral.plus(value)
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+      cdpEngine.save()
     }
   }
 }
@@ -209,6 +234,13 @@ export function handleFree(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+      cdpEngine.totalCollateral = cdpEngine.totalCollateral.minus(value)
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+      cdpEngine.save()
     }
   }
 }
@@ -265,6 +297,13 @@ export function handleDraw(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+      cdpEngine.totalDebt = cdpEngine.totalDebt.plus(value)
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+      cdpEngine.save()
     }
   }
 }
@@ -321,6 +360,13 @@ export function handleWipe(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+      cdpEngine.totalDebt = cdpEngine.totalDebt.minus(value)
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+      cdpEngine.save()
     }
   }
 }
@@ -353,7 +399,10 @@ export function handleBite(event: LogNote): void {
     let cdp = Cdp.load(cdpId)
 
     if (cdp != null) {
+      // I think this should be after calculating ratio.
       // Reset outstanding debt
+      let debt = cdp.debt
+      let collateral = cdp.collateral
       cdp.debt = ZERO
 
       // TODO: Calculate remaining collateral
@@ -375,6 +424,18 @@ export function handleBite(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+
+      cdpEngine.totalCollateral = cdpEngine.totalCollateral.minus(collateral)
+      cdpEngine.totalDebt = cdpEngine.totalDebt.minus(debt)
+      cdpEngine.openCdpCount--
+
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+
+      cdpEngine.save()
     }
   }
 }
@@ -411,6 +472,8 @@ export function handleShut(event: LogNote): void {
       cdp.deleted = event.block.timestamp
 
       // Reset collateral and debt
+      let debt = cdp.debt
+      let collateral = cdp.collateral
       cdp.debt = ZERO
       cdp.collateral = ZERO
 
@@ -431,6 +494,17 @@ export function handleShut(event: LogNote): void {
       cdp.modifiedAtTransaction = action.transactionHash
 
       cdp.save()
+
+      // update cdpEngine entity
+      let cdpEngine = getCdpEngineEntity()
+
+      cdpEngine.totalCollateral = cdpEngine.totalCollateral.minus(collateral)
+      cdpEngine.totalDebt = cdpEngine.totalDebt.minus(debt)
+      cdpEngine.openCdpCount--
+
+      cdpEngine.lastBlock = action.block
+      cdpEngine.lastModifiedDate = action.timestamp
+      cdpEngine.save()
     }
   }
 }
@@ -481,4 +555,41 @@ function getMkrPrice(event: EthereumEvent): BigDecimal {
   }
 
   return price.value
+}
+
+// Not possible to make it generic
+// https://github.com/AssemblyScript/assemblyscript/issues/219
+function addOwner(owner: Bytes, list: Array<Bytes>): Array<Bytes> {
+  let response = list
+  let exists = false;
+
+  // there is no possible to use array.some to achieve the same functionality
+  //https://docs.assemblyscript.org/basics/limitations#closures
+  for (let i = 0, k = list.length; i < k; ++i) {
+    if(list[i].toHexString() == owner.toHexString()) {
+      exists = true
+      break
+    }
+  }
+
+  if(!exists) {
+    response.push(owner)
+  }
+
+  return response
+}
+
+function getCdpEngineEntity(): CdpEngine {
+  let cdpEngine = CdpEngine.load(CDP_ENGINE_ID)
+
+  if (cdpEngine === null) {
+    cdpEngine = new CdpEngine(CDP_ENGINE_ID)
+    cdpEngine.cdpCount = 0
+    cdpEngine.openCdpCount = 0
+    cdpEngine.totalCollateral = ZERO
+    cdpEngine.totalDebt = ZERO
+    cdpEngine.cdpOwners = []
+  }
+
+  return cdpEngine as CdpEngine
 }
