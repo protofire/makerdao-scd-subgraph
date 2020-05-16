@@ -1,6 +1,6 @@
-import { BigDecimal, Bytes, EthereumEvent, log,  } from '@graphprotocol/graph-ts'
+import { BigDecimal, Bytes, ethereum, log } from '@graphprotocol/graph-ts'
 
-import { LogNewCup, LogNote } from '../generated/sai/tub'
+import { LogNewCup, LogNote } from '../generated/SaiTub/SaiTub'
 import { Cdp, CdpAction, EthPrice, MkrPrice, CdpEngine } from '../generated/schema'
 
 import { pep, pip } from './contracts'
@@ -509,7 +509,7 @@ export function handleShut(event: LogNote): void {
   }
 }
 
-function getEthPrice(event: EthereumEvent): BigDecimal {
+function getEthPrice(event: ethereum.Event): BigDecimal {
   let blockNumber = event.block.number
   let price = EthPrice.load(blockNumber.toString())
 
@@ -533,7 +533,7 @@ function getEthPrice(event: EthereumEvent): BigDecimal {
   return price.value
 }
 
-function getMkrPrice(event: EthereumEvent): BigDecimal {
+function getMkrPrice(event: ethereum.Event): BigDecimal {
   let blockNumber = event.block.number
   let price = MkrPrice.load(blockNumber.toString())
 
@@ -561,18 +561,18 @@ function getMkrPrice(event: EthereumEvent): BigDecimal {
 // https://github.com/AssemblyScript/assemblyscript/issues/219
 function addOwner(owner: Bytes, list: Array<Bytes>): Array<Bytes> {
   let response = list
-  let exists = false;
+  let exists = false
 
   // there is no possible to use array.some to achieve the same functionality
   //https://docs.assemblyscript.org/basics/limitations#closures
   for (let i = 0, k = list.length; i < k; ++i) {
-    if(list[i].toHexString() == owner.toHexString()) {
+    if (list[i].toHexString() == owner.toHexString()) {
       exists = true
       break
     }
   }
 
-  if(!exists) {
+  if (!exists) {
     response.push(owner)
   }
 
